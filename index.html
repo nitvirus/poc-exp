@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style> /* set the CSS */
+
+body { font: 12px Arial;}
+
+path.line {
+	stroke: red;
+	stroke-width: 2;
+	fill: none;
+}
+
+path.line1 {
+    stroke: green !important;
+    stroke-width: 2;
+    fill: none;
+}
+
+path.line2 {
+    stroke: blue !important;
+    stroke-width: 2;
+    fill: none;
+}
+
+.axis path,
+.axis line {
+	fill: none;
+	stroke: black;
+	stroke-width: 1;
+	shape-rendering: crispEdges;
+}
+
+
+.legend {
+    height: 20px;
+    left: 20px;
+    width: 40px;
+
+}
+
+div.tooltip {					/* set the CSS for tooltip divs */
+  position: absolute;			/* reference for measurement */
+  text-align: center;			/* align the text to the center */
+  width: 60px;					/* set the width of the rectangle */
+  height: 28px;					/* set the height of the rectangle */
+  padding: 2px;					/* set a border around the rectangle */
+  font: 12px sans-serif;		/* set the font type for the tooltips */
+  background: lightsteelblue;	/* set the colour of the rectangle */
+  border: 0px;					/* turn off the border (0px) */
+  border-radius: 8px;			/* set how rounded the edges of the rectangle is */
+  pointer-events: none;			/* 'none' tells the mouse to ignore the rectangle */
+}
+
+</style>
+<body>
+
+<!-- load the d3.js library -->
+<script type="text/javascript" src="d3/d3.min.js"></script>
+    <script src="d3.legend.js"></script>
+
+
+<script>
+
+// Set the dimensions of the canvas / graph
+var	margin = {top: 30, right: 20, bottom: 30, left: 50},
+	width = 900 - margin.left - margin.right,
+	height = 500 - margin.top - margin.bottom;
+
+// Parse the date / time
+var	parseDate = d3.time.format("%d-%b-%y").parse;
+var formatTime = d3.time.format("%e %B");			// Format the date / time for tooltips
+
+
+// Set the ranges
+var	x = d3.time.scale().range([0, width]);
+var	y = d3.scale.linear().range([height, 0]);
+
+// Define the axes
+var	xAxis = d3.svg.axis().scale(x)
+	.orient("bottom").ticks(20);
+
+var	yAxis = d3.svg.axis().scale(y)
+	.orient("left").ticks(10);
+
+// Define the line
+var	valueline = d3.svg.line()
+	.x(function(d) { return x(d.date); })
+	.y(function(d) { return y(d.close); });
+
+// Define 'div' for tooltips
+var div = d3.select("body").append("div")	// declare the properties for the div used for the tooltips
+	.attr("class", "tooltip")				// apply the 'tooltip' class
+	.style("opacity", 0);					// set the opacity to nil
+
+// Adds the svg canvas
+var	svg = d3.select("body")
+	.append("svg")
+		.attr("width", width + margin.left + margin.right)
+		.attr("height", height + margin.top + margin.bottom)
+	.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// Get the data
+d3.tsv("data3.tsv", function(error, data) {
+	data.forEach(function(d) {
+		d.date = parseDate(d.date);
+		d.close = +d.close;
+	});
+
+	// Scale the range of the data
+	x.domain(d3.extent(data, function(d) { return d.date; }));
+	y.domain([0, d3.max(data, function(d) { return d.close; })]);
+
+	// Add the valueline path.
+	svg.append("path")
+		.attr("class", "line")
+		.attr("d", valueline(data));
+
+	// draw the scatterplot
+	svg.selectAll("dot")
+		.data(data)
+	.enter().append("circle")
+		.attr("r", 2.5)											// Made slightly larger to make recognition easier
+		.attr("cx", function(d) { return x(d.date); })
+		.attr("cy", function(d) { return y(d.close) })			// remove semicolon
+	// Tooltip stuff after this
+	    .on("mouseover", function(d) {							// when the mouse goes over a circle, do the following
+			div.transition()									// declare the transition properties to bring fade-in div270
+				.duration(200)									// it shall take 200ms
+				.style("opacity", .9);							// and go all the way to an opacity of .9
+			div	.html(formatTime(d.date) + "<br/>"  + d.close)	// add the text of the tooltip as html
+				.style("left", (d3.event.pageX) + "px")			// move it in the x direction
+				.style("top", (d3.event.pageY - 28) + "px");	// move it in the y direction
+			})													//
+		.on("mouseout", function(d) {							// when the mouse leaves a circle, do the following
+			div.transition()									// declare the transition properties to fade-out the div
+				.duration(500)									// it shall take 500ms
+				.style("opacity", 0);							// and go all the way to an opacity of nil
+		});														// finis
+
+	// Add the X Axis
+	svg.append("g")
+		.attr("class", "x axis")
+		.attr("transform", "translate(0," + height + ")")
+		.call(xAxis);
+
+	// Add the Y Axis
+	svg.append("g")
+		.attr("class", "y axis")
+		.call(yAxis);
+
+  // draw legend
+  var rect = svg.append("rect")
+            .attr('x', 650)
+            .attr('y', 240)
+            .attr('width', 200)
+            .attr('height', 100)
+            .attr('fill', 'none')
+            .attr('stroke', 'black');
+  var legend = svg.append("g")
+      .attr("class", "legend")
+      .attr("x", width - 165)
+      .attr("y", 125)
+      .attr("height", 100)
+      .attr("width", 100);
+
+  // draw legend colored rectangles
+  legend.append("rect")
+      .attr("x", width - 18)
+      .attr("y", "260")
+      .attr("width", 18)
+      .attr("height", 18)
+      .attr('class', 'rect1')
+      .style("fill", "red");
+
+  // draw legend text
+  legend.append("text")
+      .attr("x", width - 24)
+      .attr("y", "260")
+      .attr('class', 'text1')
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      // .style('float', 'left')
+      // .style('margin-left', '20px')
+      .text(function(d) { return "Maruti";})
+///
+    legend.append("rect")
+      .attr("x", width - 18)
+      .attr('y', "309")
+      .attr("width", 18)
+      .attr('class', 'rect2')
+      .attr("height", 18)
+      .style("fill", "green");
+
+  // draw legend text
+  legend.append("text")
+      .attr("x", width - 24)
+      .attr("y", 311)
+      .attr('class', 'text2')
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) { return "Mahindra and Mahindra";})
+////
+
+    legend.append("rect")
+      .attr("x", width - 18)
+      .attr('y', "359")
+      .attr("width", 18)
+      .attr('class', 'rect2')
+      .attr("height", 18)
+      .style("fill", "blue");
+
+  // draw legend text
+  legend.append("text")
+      .attr("x", width - 24)
+      .attr("y", 361)
+      .attr('class', 'text2')
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) { return "testing";})
+
+});
+
+d3.tsv("data4.tsv", function(error, data) {
+    data.forEach(function(d) {
+        d.date = parseDate(d.date);
+        d.close = +d.close;
+    });
+
+    // Scale the range of the data
+    // x.domain(d3.extent(data, function(d) { return d.date; }));
+    // y.domain([0, d3.max(data, function(d) { return d.close; })]);
+
+    // Add the valueline path.
+    svg.append("path")
+        .attr("class", "line1")
+        .attr("d", valueline(data));
+
+    // draw the scatterplot
+    svg.selectAll("dot")
+        .data(data)
+    .enter().append("circle")
+        .attr("r", 2.5)                                         // Made slightly larger to make recognition easier
+        .attr("cx", function(d) { return x(d.date); })
+        .attr("cy", function(d) { return y(d.close) })          // remove semicolon
+    // Tooltip stuff after this
+        .on("mouseover", function(d) {                          // when the mouse goes over a circle, do the following
+            div.transition()                                    // declare the transition properties to bring fade-in div
+                .duration(200)                                  // it shall take 200ms
+                .style("opacity", .9);                          // and go all the way to an opacity of .9
+            div .html(formatTime(d.date) + "<br/>"  + d.close)  // add the text of the tooltip as html
+                .style("left", (d3.event.pageX) + "px")         // move it in the x direction
+                .style("top", (d3.event.pageY - 28) + "px");    // move it in the y direction
+            })                                                  //
+        .on("mouseout", function(d) {                           // when the mouse leaves a circle, do the following
+            div.transition()                                    // declare the transition properties to fade-out the div
+                .duration(500)                                  // it shall take 500ms
+                .style("opacity", 0);                           // and go all the way to an opacity of nil
+        });                                                     // finis
+
+    // Add the X Axis
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    // Add the Y Axis
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+
+});
+
+d3.tsv("data5.tsv", function(error, data) {
+    data.forEach(function(d) {
+        d.date = parseDate(d.date);
+        d.close = +d.close;
+    });
+
+    // Scale the range of the data
+    // x.domain(d3.extent(data, function(d) { return d.date; }));
+    // y.domain([0, d3.max(data, function(d) { return d.close; })]);
+
+    // Add the valueline path.
+    svg.append("path")
+        .attr("class", "line2")
+        .attr("d", valueline(data));
+
+    // draw the scatterplot
+    svg.selectAll("dot")
+        .data(data)
+    .enter().append("circle")
+        .attr("r", 2.5)                                         // Made slightly larger to make recognition easier
+        .attr("cx", function(d) { return x(d.date); })
+        .attr("cy", function(d) { return y(d.close) })          // remove semicolon
+    // Tooltip stuff after this
+        .on("mouseover", function(d) {                          // when the mouse goes over a circle, do the following
+            div.transition()                                    // declare the transition properties to bring fade-in div
+                .duration(200)                                  // it shall take 200ms
+                .style("opacity", .9);                          // and go all the way to an opacity of .9
+            div .html(formatTime(d.date) + "<br/>"  + d.close)  // add the text of the tooltip as html
+                .style("left", (d3.event.pageX) + "px")         // move it in the x direction
+                .style("top", (d3.event.pageY - 28) + "px");    // move it in the y direction
+            })                                                  //
+        .on("mouseout", function(d) {                           // when the mouse leaves a circle, do the following
+            div.transition()                                    // declare the transition properties to fade-out the div
+                .duration(500)                                  // it shall take 500ms
+                .style("opacity", 0);                           // and go all the way to an opacity of nil
+        });                                                     // finis
+
+    // Add the X Axis
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    // Add the Y Axis
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+
+});
+
+
+
+</script>
+</body>
