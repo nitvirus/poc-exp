@@ -136,7 +136,7 @@ svg.append("rect")
     .attr("height", height)
     .call(zoom);
 
-d3.csv("abc.csv", function(error, data) {
+d3.csv("data/abc.csv", function(error, data) {
   data.forEach(function(d) {
     d.date = parseDate(d.date);
     d.value = +d.value;
