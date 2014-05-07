@@ -100,7 +100,7 @@ var	svg = d3.select("body")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 // Get the data
-d3.tsv("data3.tsv", function(error, data) {
+d3.tsv("data/data3.tsv", function(error, data) {
 	data.forEach(function(d) {
 		d.date = parseDate(d.date);
 		d.close = +d.close;
@@ -220,7 +220,7 @@ d3.tsv("data3.tsv", function(error, data) {
 
 });
 
-d3.tsv("data4.tsv", function(error, data) {
+d3.tsv("data/data4.tsv", function(error, data) {
     data.forEach(function(d) {
         d.date = parseDate(d.date);
         d.close = +d.close;
@@ -270,7 +270,7 @@ d3.tsv("data4.tsv", function(error, data) {
 
 });
 
-d3.tsv("data5.tsv", function(error, data) {
+d3.tsv("data/data5.tsv", function(error, data) {
     data.forEach(function(d) {
         d.date = parseDate(d.date);
         d.close = +d.close;
