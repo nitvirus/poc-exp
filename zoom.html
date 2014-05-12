@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="../d3js/d3/d3.min.js"></script>
 <style>
 
 svg {
@@ -81,6 +81,17 @@ var line = d3.svg.line()
     .x(function(d) { return x(d.date); })
     .y(function(d) { return y(d.value); });
 
+var area1 = d3.svg.area()
+    .interpolate("step-after")
+    .x(function(d) { return x(d.date); })
+    .y0(y(0))
+    .y1(function(d) { return y(d.value); });
+
+var line1 = d3.svg.line()
+    .interpolate("step-after")
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.value); });
+
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -136,13 +147,13 @@ svg.append("rect")
     .attr("height", height)
     .call(zoom);
 
-d3.csv("data/abc.csv", function(error, data) {
+d3.csv("data/ab.csv", function(error, data) {
   data.forEach(function(d) {
     d.date = parseDate(d.date);
     d.value = +d.value;
   });
 
-  x.domain([new Date(1999, 0, 1), new Date(2003, 0, 0)]);
+  x.domain([new Date(1999, 0, 1), new Date(2014, 0, 0)]);
   y.domain([0, d3.max(data, function(d) { return d.value; })]);
   zoom.x(x);
 
@@ -156,6 +167,28 @@ function draw() {
   svg.select("g.y.axis").call(yAxis);
   svg.select("path.area").attr("d", area);
   svg.select("path.line").attr("d", line);
+}
+
+d3.csv("data/ab1.csv", function(error, data) {
+  data.forEach(function(d) {
+    d.date = parseDate(d.date);
+    d.value = +d.value;
+  });
+
+  x.domain([new Date(1999, 0, 1), new Date(2014, 0, 0)]);
+  y.domain([0, d3.max(data, function(d) { return d.value; })]);
+  zoom.x(x);
+
+  svg.select("path.area1").data([data]);
+  svg.select("path.line1").data([data]);
+  draw();
+});
+
+function draw() {
+  svg.select("g.x.axis").call(xAxis);
+  svg.select("g.y.axis").call(yAxis);
+  svg.select("path.area").attr("d", area1);
+  svg.select("path.line").attr("d", line1);
 }
 
 </script>

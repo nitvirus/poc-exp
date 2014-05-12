@@ -56,7 +56,7 @@ div.tooltip {         /* set the CSS for tooltip divs */
 <body>
 
 <!-- load the d3.js library -->
-<script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+<script type="text/javascript" src="../d3js/d3/d3.min.js"></script>
 
 <script>
 
@@ -111,10 +111,22 @@ d3.tsv("data/hcl.tsv", function(error, data) {
   y.domain([0, d3.max(data, function(d) { return d.close; })]);
 
   // Add the valueline path.
-  svg.append("path")
+  var path = svg.append("path")
     .attr("class", "line")
     .attr("d", valueline(data));
 
+  // d3.selectAll("path.line")
+  //   .transition
+  //   .duration("2000");
+  var totalLength = path.node().getTotalLength();
+//  console.log(totalLength);
+    path    // trasition or animation
+        .attr("stroke-dasharray", totalLength+","+totalLength)
+        .attr("stroke-dashoffset", totalLength)
+        .transition()
+        .duration(2000)
+        .ease("linear-in-out")
+        .attr("stroke-dashoffset", 0);
   // draw the scatterplot
   svg.selectAll("dot")
     .data(data)
@@ -223,9 +235,24 @@ d3.tsv("data/techm.tsv", function(error, data) {
     // y.domain([0, d3.max(data, function(d) { return d.close; })]);
 
     // Add the valueline path.
-    svg.append("path")
-        .attr("class", "line1")
-        .attr("d", valueline(data));
+    // svg.append("path")
+    //     .attr("class", "line1")
+    //     .attr("d", valueline(data));
+
+  var path1 = svg.append("path")
+    .attr("class", "line1")
+    .attr("d", valueline(data));
+
+    var totalLength1 = path1.node().getTotalLength();
+  console.log(totalLength1);
+    path1    // trasition or animation
+        .attr("stroke-dasharray", totalLength1+","+totalLength1)
+        .attr("stroke-dashoffset", totalLength1)
+        .transition()
+        .duration(2000)
+        .ease("linear-in-out")
+        .attr("stroke-dashoffset", 0);
+
 
     // draw the scatterplot
     svg.selectAll("dot")
