@@ -1,0 +1,56 @@
+<doctype html>
+<html>
+<head>
+    <title>D3 example</title>
+    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+</head>
+<body>
+    <script type="text/javascript">
+        var data = [10];
+        var canvas =  d3.select("body")
+                        .append("svg")
+                        .attr('width', 500)
+                        .attr('height', 500)
+
+        var circle = canvas.append('circle')
+            .attr('cx', 50)
+            .attr('cy', 100)
+            .attr('r', 25)
+            .attr('fill', '#000');
+        var circle2 = canvas.append('circle')
+            .attr('cx', 50)
+            .attr('cy', 200)
+            .attr('r', 25)
+            .attr('fill', 'green');
+
+        // var circles = canvas.selectAll("circle")
+        //     .data(data)
+        //     .style('fill', 'red')
+        //      .exit()//.append('circle')
+        //     // .attr('cx', 50)
+        //     // .attr('cy', 50)
+        //     // .attr('r', 25)
+        //     .style('fill', 'green');
+
+        // Transition - animation for the circle
+
+        circle.transition()
+            .duration(3500)
+            .delay(1000)
+            .attr('cy', 1500)
+            .each("start", function(){
+                d3.select(this).attr('fill', 'red');
+            }); // event listener
+
+        circle2.transition()
+            .duration(1500)
+            .delay(1000)
+            .attr('cy', 100)
+            .attr('cx', '200')
+            .each("start", function(){
+                d3.select(this).attr('fill', 'green');
+            }); // event listener
+
+    </script>
+</body>
+</html>
